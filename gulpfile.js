@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+    path = require('path'),
     less = require('gulp-less'),
     autoprefixer = require('gulp-autoprefixer'),
     minifycss = require('gulp-minify-css'),
@@ -10,7 +11,60 @@ var gulp = require('gulp'),
     notify = require('gulp-notify'),
     cache = require('gulp-cache'),
     livereload = require('gulp-livereload'),
-    del = require('del');
+    del = require('del'),
+    frontMatter = require('gulp-front-matter'),
+    marked = require('gulp-marked'),
+    swig = require('swig'),
+    swigExtras = require('swig-extras'),
+    through = require('through2'),
+    merge = require('merge-stream');
+
+// swig template configs
+swig.setDefaults({
+    loader: swig.loaders.fs(__dirname + '/src/templates'),
+    cache: false
+});
+swigExtras.useFilter(swig, 'truncate');
+
+function applyTemplate(templateFile) {
+    var tpl = swig.compileFile(path.join(__dirname, templateFile));
+
+    return through.obj(function (file, enc, cb) {
+        var data = {
+            site: site,
+            page: file.page,
+            content: file.contents.toString()
+        };
+        file.contents = new Buffer(tpl(data), 'utf8');
+        this.push(file);
+        cb();
+    });
+};
+
+gulp.task('pages', function () {
+    var html = gulp.src(['src/content/pages/*.html'])
+        .pipe(frontMatter({property: 'page', remove: true}))
+        .pipe(through.obj(function (file, enc, cb) {
+            var data = {
+                //site: site,
+                page: {}
+            }
+            var tpl = swig.compileFile(file.path)
+            file.contents = new Buffer(tpl(data), 'utf8')
+            this.push(file)
+            cb()
+        }))
+
+    var markdown = gulp.src('src/content/pages/*.md')
+        .pipe(frontMatter({property: 'page', remove: true}))
+        .pipe(marked())
+        .pipe(applyTemplate('src/templates/page.html'))
+        .pipe(rename({extname: '.html'}))
+
+    return merge(html, markdown)
+        .pipe(gulp.dest('dist'));
+        //.pipe(connect.reload())
+})
 
 // less/css tasks
 gulp.task('styles', function() {
