@@ -1,0 +1,21 @@
+{
+  "name": "sip",
+  "version": "0.0.0",
+  "homepage": "https://github.com/ascott1/sip",
+  "authors": [
+    "Adam D Scott <hello@adamdscott.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "normalize.css": "~3.0.2",
+    "typebase": "git@github.com:devinhunt/typebase.css.git",
+    "semantic.gs": "*"
+  }
+}
