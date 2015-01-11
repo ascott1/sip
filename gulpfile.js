@@ -124,7 +124,6 @@ gulp.task('watch', function() {
   gulp.watch('src/less/**/*.less', ['styles']);
   gulp.watch('src/js/**/*.js', ['scripts']);
   gulp.watch('src/img/**/*', ['images']);
-  gulp.watch('src/partials/**/*', ['pages']);
   gulp.watch('src/templates/**/*', ['pages']);
   gulp.watch('content/**/*', ['pages']);
 
