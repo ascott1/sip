@@ -18,6 +18,7 @@ var gulp = require('gulp'),
     swigExtras = require('swig-extras'),
     through = require('through2'),
     merge = require('merge-stream'),
+    deploy = require('gulp-gh-pages'),
     config = require('./config.json');
 
 // swig template configs
@@ -125,5 +126,11 @@ gulp.task('watch', function() {
 
 // default tasks
 gulp.task('default', ['clean'], function() {
-    gulp.start('styles', 'scripts', 'images');
+    gulp.start('styles', 'scripts', 'pages', 'images');
+});
+
+// deploy to gh-pages
+gulp.task('deploy', ['dist'], function () {
+    return gulp.src('./dist/**/*')
+    .pipe(deploy());
 });
