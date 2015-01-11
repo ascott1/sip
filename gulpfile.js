@@ -52,7 +52,7 @@ function applyTemplate(templateFile) {
 };
 
 gulp.task('pages', function () {
-    var html = gulp.src(['content/pages/*.html'])
+    var html = gulp.src(['content/pages/**/*.html'])
         .pipe(frontMatter({property: 'page', remove: true}))
         .pipe(through.obj(function (file, enc, cb) {
             var data = {
@@ -65,7 +65,7 @@ gulp.task('pages', function () {
             cb();
         }));
 
-    var markdown = gulp.src('content/pages/*.md')
+    var markdown = gulp.src('content/pages/**/*.md')
         .pipe(frontMatter({property: 'page', remove: true}))
         .pipe(marked())
         .pipe(applyTemplate('src/templates/page.html'))
