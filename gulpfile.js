@@ -17,17 +17,8 @@ var gulp = require('gulp'),
     swig = require('swig'),
     swigExtras = require('swig-extras'),
     through = require('through2'),
-    merge = require('merge-stream');
-
-// site config
-var site = {
-    'title': 'Site Title',
-    'url': '',
-    'urlRoot': '/',
-    'author': '',
-    'email': '',
-    'time': new Date()
-};
+    merge = require('merge-stream'),
+    config = require('./config.json');
 
 // swig template configs
 swig.setDefaults({
@@ -41,7 +32,7 @@ function applyTemplate(templateFile) {
 
     return through.obj(function (file, enc, cb) {
         var data = {
-            site: site,
+            site: config.site,
             page: file.page,
             content: file.contents.toString()
         };
@@ -56,7 +47,7 @@ gulp.task('pages', function () {
         .pipe(frontMatter({property: 'page', remove: true}))
         .pipe(through.obj(function (file, enc, cb) {
             var data = {
-                //site: site,
+                site: config.site,
                 page: {}
             };
             var tpl = swig.compileFile(file.path);
