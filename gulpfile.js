@@ -10,7 +10,6 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     notify = require('gulp-notify'),
     cache = require('gulp-cache'),
-    livereload = require('gulp-livereload'),
     del = require('del'),
     frontMatter = require('gulp-front-matter'),
     marked = require('gulp-marked'),
@@ -18,6 +17,7 @@ var gulp = require('gulp'),
     swigExtras = require('swig-extras'),
     through = require('through2'),
     merge = require('merge-stream'),
+    connect = require('gulp-connect'),
     deploy = require('gulp-gh-pages'),
     config = require('./config.json');
 
@@ -64,8 +64,9 @@ gulp.task('pages', function () {
         .pipe(rename({extname: '.html'}));
 
     return merge(html, markdown)
-        .pipe(gulp.dest('dist'));
-        //.pipe(connect.reload())
+        .pipe(gulp.dest('dist'))
+        .pipe(connect.reload())
+        .pipe(notify({ message: 'Pages task complete' }));
 });
 
 // less/css tasks
@@ -77,6 +78,7 @@ gulp.task('styles', function() {
     .pipe(rename({suffix: '.min'}))
     .pipe(minifycss())
     .pipe(gulp.dest('dist/assets/css'))
+    .pipe(connect.reload())
     .pipe(notify({ message: 'Styles task complete' }));
 });
 
@@ -90,6 +92,7 @@ gulp.task('scripts', function() {
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
     .pipe(gulp.dest('dist/assets/js'))
+    .pipe(connect.reload())
     .pipe(notify({ message: 'Scripts task complete' }));
 });
 
@@ -98,12 +101,8 @@ gulp.task('images', function() {
   return gulp.src('src/img/**/*')
     .pipe(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }))
     .pipe(gulp.dest('dist/assets/img'))
+    .pipe(connect.reload())
     .pipe(notify({ message: 'Images task complete' }));
-});
-
-// copy html
-gulp.task('copyhtml', function() {
-    gulp.src('src/**/*.html').pipe(gulp.dest('dist/'));
 });
 
 // clean dist folder
@@ -113,15 +112,17 @@ gulp.task('clean', function(cb) {
 
 // watch files
 gulp.task('watch', function() {
-  gulp.watch('src/less/**/*.less', ['styles']);
-  gulp.watch('src/js/**/*.js', ['scripts']);
-  gulp.watch('src/img/**/*', ['images']);
-  gulp.watch('src/templates/**/*', ['pages']);
-  gulp.watch('content/**/*', ['pages']);
+    gulp.watch('src/less/**/*.less', ['styles']);
+    gulp.watch('src/js/**/*.js', ['scripts']);
+    gulp.watch('src/img/**/*', ['images']);
+    gulp.watch('src/templates/**/*', ['pages']);
+    gulp.watch('content/**/*', ['pages']);
 
-  //live reload
-  livereload.listen();
-  gulp.watch(['dist/**']).on('change', livereload.changed);
+    connect.server({
+        root: ['dist'],
+        port: 4242,
+        livereload: true
+    });
 });
 
 // default tasks
