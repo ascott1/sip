@@ -19,6 +19,16 @@ var gulp = require('gulp'),
     through = require('through2'),
     merge = require('merge-stream');
 
+// site config
+var site = {
+    'title': 'Site Title',
+    'url': '',
+    'urlRoot': '/',
+    'author': '',
+    'email': '',
+    'time': new Date()
+};
+
 // swig template configs
 swig.setDefaults({
     loader: swig.loaders.fs(__dirname + '/src/templates'),
@@ -42,29 +52,29 @@ function applyTemplate(templateFile) {
 };
 
 gulp.task('pages', function () {
-    var html = gulp.src(['src/content/pages/*.html'])
+    var html = gulp.src(['content/pages/*.html'])
         .pipe(frontMatter({property: 'page', remove: true}))
         .pipe(through.obj(function (file, enc, cb) {
             var data = {
                 //site: site,
                 page: {}
-            }
-            var tpl = swig.compileFile(file.path)
-            file.contents = new Buffer(tpl(data), 'utf8')
-            this.push(file)
-            cb()
-        }))
+            };
+            var tpl = swig.compileFile(file.path);
+            file.contents = new Buffer(tpl(data), 'utf8');
+            this.push(file);
+            cb();
+        }));
 
-    var markdown = gulp.src('src/content/pages/*.md')
+    var markdown = gulp.src('content/pages/*.md')
         .pipe(frontMatter({property: 'page', remove: true}))
         .pipe(marked())
         .pipe(applyTemplate('src/templates/page.html'))
-        .pipe(rename({extname: '.html'}))
+        .pipe(rename({extname: '.html'}));
 
     return merge(html, markdown)
         .pipe(gulp.dest('dist'));
         //.pipe(connect.reload())
-})
+});
 
 // less/css tasks
 gulp.task('styles', function() {
